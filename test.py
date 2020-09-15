@@ -60,8 +60,7 @@ for A in A_dataset_test:
     A2B, A2B2A = sample_A2B(A)
     for A_i, A2B_i, A2B2A_i in zip(A, A2B, A2B2A):
         img = np.concatenate([A_i.numpy(), A2B_i.numpy(), A2B2A_i.numpy()], axis=1)
-        #im.imwrite(img, py.join(sample_dir, 'iter-%09d.jpg' % G_optimizer.iterations.numpy()))
-        im.imwrite(img, py.join(save_dir, 'iter-%09d.jpg'%i))
+        im.imwrite(img, py.join(save_dir, py.name_ext(A_img_paths_test[i])))
         i += 1
 
 save_dir = py.join(args.experiment_dir, 'samples_testing', 'B2A')
@@ -71,6 +70,5 @@ for B in B_dataset_test:
     B2A, B2A2B = sample_B2A(B)
     for B_i, B2A_i, B2A2B_i in zip(B, B2A, B2A2B):
         img = np.concatenate([B_i.numpy(), B2A_i.numpy(), B2A2B_i.numpy()], axis=1)
-        #im.imwrite(img, py.join(save_dir, py.name_ext(B_img_paths_test[i])))
-        im.imwrite(img, py.join(save_dir, 'iter-%09d.jpg'%i))
+        im.imwrite(img, py.join(save_dir, py.name_ext(B_img_paths_test[i])))
         i += 1

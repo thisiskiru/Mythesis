@@ -17,13 +17,13 @@ import module
 # =                                   param                                    =
 # ==============================================================================
 
-py.arg('--dataset', default='Day_to_Sunset')
-py.arg('--datasets_dir', default='E:/thesis/Implimentation/dataset/datasets/Viper/')
+py.arg('--dataset', default='horse2zebra')
+py.arg('--datasets_dir', default='datasets')
 py.arg('--load_size', type=int, default=286)  # load image to this size
 py.arg('--crop_size', type=int, default=256)  # then crop to this size
-py.arg('--batch_size', type=int, default=2)
-py.arg('--epochs', type=int, default=20)
-py.arg('--epoch_decay', type=int, default=10)  # epoch to start decaying learning rate
+py.arg('--batch_size', type=int, default=1)
+py.arg('--epochs', type=int, default=200)
+py.arg('--epoch_decay', type=int, default=100)  # epoch to start decaying learning rate
 py.arg('--lr', type=float, default=0.0002)
 py.arg('--beta_1', type=float, default=0.5)
 py.arg('--adversarial_loss_mode', default='lsgan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
@@ -48,15 +48,14 @@ py.args_to_yaml(py.join(output_dir, 'settings.yml'), args)
 
 A_img_paths = py.glob(py.join(args.datasets_dir, args.dataset, 'trainA'), '*.jpg')
 B_img_paths = py.glob(py.join(args.datasets_dir, args.dataset, 'trainB'), '*.jpg')
-
-A_B_dataset, len_dataset = data.make_zip_dataset(A_img_paths, B_img_paths, args.batch_size, args.load_size, args.crop_size, training=True, shuffle=False, repeat=False)
+A_B_dataset, len_dataset = data.make_zip_dataset(A_img_paths, B_img_paths, args.batch_size, args.load_size, args.crop_size, training=True, repeat=False)
 
 A2B_pool = data.ItemPool(args.pool_size)
 B2A_pool = data.ItemPool(args.pool_size)
 
 A_img_paths_test = py.glob(py.join(args.datasets_dir, args.dataset, 'testA'), '*.jpg')
 B_img_paths_test = py.glob(py.join(args.datasets_dir, args.dataset, 'testB'), '*.jpg')
-A_B_dataset_test, _ = data.make_zip_dataset(A_img_paths_test, B_img_paths_test, args.batch_size, args.load_size, args.crop_size, training=False, shuffle=False, repeat=True)
+A_B_dataset_test, _ = data.make_zip_dataset(A_img_paths_test, B_img_paths_test, args.batch_size, args.load_size, args.crop_size, training=False, repeat=True)
 
 
 # ==============================================================================
@@ -178,7 +177,6 @@ checkpoint = tl.Checkpoint(dict(G_A2B=G_A2B,
                                 ep_cnt=ep_cnt),
                            py.join(output_dir, 'checkpoints'),
                            max_to_keep=5)
-print('try maybe')
 try:  # restore checkpoint including the epoch counter
     checkpoint.restore().assert_existing_objects_matched()
 except Exception as e:
@@ -210,13 +208,12 @@ with train_summary_writer.as_default():
             tl.summary(D_loss_dict, step=G_optimizer.iterations, name='D_losses')
             tl.summary({'learning rate': G_lr_scheduler.current_learning_rate}, step=G_optimizer.iterations, name='learning rate')
 
-            if G_optimizer.iterations.numpy() % 500 == 0:
+            # sample
+            if G_optimizer.iterations.numpy() % 100 == 0:
                 A, B = next(test_iter)
-                #checkpoint.save(ep)
                 A2B, B2A, A2B2A, B2A2B = sample(A, B)
                 img = im.immerge(np.concatenate([A, A2B, A2B2A, B, B2A, B2A2B], axis=0), n_rows=2)
                 im.imwrite(img, py.join(sample_dir, 'iter-%09d.jpg' % G_optimizer.iterations.numpy()))
 
-            if G_optimizer.iterations.numpy() % 500 == 0:
-                checkpoint.save(ep)
-    checkpoint.save(ep)
+        # save checkpoint
+        checkpoint.save(ep)
