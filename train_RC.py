@@ -137,21 +137,21 @@ def train_G(A, A_1, A_2, B, B_1, B_2, A2B_1, A2B_2, B2A_1, B2A_2):
         A2B_g_loss = g_loss_fn(A2B_d_logits)
         B2A_g_loss = g_loss_fn(B2A_d_logits)
                 
-        A2B2A_cycle_loss = cycle_loss_fn(A, A2B2A)
-        B2A2B_cycle_loss = cycle_loss_fn(B, B2A2B)
+        A2B2A_Recycle_loss = cycle_loss_fn(A, A2B2A)
+        B2A2B_Recycle_loss = cycle_loss_fn(B, B2A2B)
 
         A2A_id_loss = identity_loss_fn(A, A2A)
         B2B_id_loss = identity_loss_fn(B, B2B)
 
-        G_loss = (A2B_g_loss + B2A_g_loss) + (A2B2A_cycle_loss + B2A2B_cycle_loss) * args.cycle_loss_weight + (A2A_id_loss + B2B_id_loss) * args.identity_loss_weight
+        G_loss = (A2B_g_loss + B2A_g_loss) + (A2B2A_Recycle_loss + B2A2B_Recycle_loss) * args.cycle_loss_weight + (A2A_id_loss + B2B_id_loss) * args.identity_loss_weight
 
     G_grad = t.gradient(G_loss, G_A2B.trainable_variables + G_B2A.trainable_variables)
     G_optimizer.apply_gradients(zip(G_grad, G_A2B.trainable_variables + G_B2A.trainable_variables))
 
     return A2B, B2A, {'A2B_g_loss': A2B_g_loss,
                       'B2A_g_loss': B2A_g_loss,
-                      'A2B2A_cycle_loss': A2B2A_cycle_loss,
-                      'B2A2B_cycle_loss': B2A2B_cycle_loss,
+                      'A2B2A_Recycle_loss': A2B2A_Recycle_loss,
+                      'B2A2B_Recycle_loss': B2A2B_Recycle_loss,
                       'A2A_id_loss': A2A_id_loss,
                       'B2B_id_loss': B2B_id_loss}
 #'M_A_A2B_loss':M_A_A2B,'M_B_B2A_loss':M_B_B2A,(M_A_A2B + M_B_B2A)*args.identity_loss_weight
