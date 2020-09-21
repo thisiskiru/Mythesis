@@ -24,8 +24,8 @@ from temporal_predictor import Generator
 # =                                   param                                    =
 # ==============================================================================
 #/media/cvr/HardDisk2/thesis/Implimentation/dataset/datasets
-py.arg('--dataset', default='ObamaTrump')
-py.arg('--datasets_dir', default="E:/thesis/Implimentation/dataset/datasets/faces/")
+py.arg('--dataset', default='02')
+py.arg('--datasets_dir', default="D:/Datasets/")
 py.arg('--load_size', type=int, default=286)  # load image to this size
 py.arg('--crop_size', type=int, default=256)  # then crop to this size
 py.arg('--batch_size', type=int, default=1)
@@ -54,8 +54,8 @@ py.args_to_yaml(py.join(output_dir, 'settings.yml'), args)
 # =                                    data                                    =
 # ==============================================================================
 
-A_img_paths = py.glob(py.join(args.datasets_dir, args.dataset, 'trainA'), '*.png')
-B_img_paths = py.glob(py.join(args.datasets_dir, args.dataset, 'trainB'), '*.png')
+A_img_paths = py.glob(py.join(args.datasets_dir, args.dataset, 'trainA'), '*.jpg')
+B_img_paths = py.glob(py.join(args.datasets_dir, args.dataset, 'trainB'), '*.jpg')
 A_B_dataset, len_dataset = data.make_zip_dataset(A_img_paths, B_img_paths, args.batch_size, args.load_size, args.crop_size, training=True, shuffle=False, repeat=False)
 
 A2B_pool = data.ItemPool(args.pool_size)
