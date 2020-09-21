@@ -116,8 +116,8 @@ def get_content_features(a,b):
 #@tf.function
 def train_G(A, A_1, A_2, B, B_1, B_2, A2B_1, A2B_2, B2A_1, B2A_2):
     with tf.GradientTape() as t:
-        A2B = G_A2B(A, training=True)
-        B2A = G_B2A(B, training=True)
+        A2B = G_A2B(A, training=False)
+        B2A = G_B2A(B, training=False)
         #print(type(A),type(A_1))
         '''
         #A2B_fake_1 = G_A2B(A_1, training = False)
@@ -125,6 +125,11 @@ def train_G(A, A_1, A_2, B, B_1, B_2, A2B_1, A2B_2, B2A_1, B2A_2):
         #B2A_fake_1 = G_B2A(B_1, training = False)
         #B2A_fake_2 = G_B2A(B_2, training = False)
         '''
+        A2B_1 = G_A2B(A_1, training=False)
+        B2A_1 = G_B2A(B_1, training=False) 
+        A2B_2 = G_A2B(A_2, training=False)
+        B2A_2 = G_B2A(B_2, training=False)
+        
         A2B2A = G_B2A(Py([A2B_1, A2B_2], training = True))
         B2A2B = G_A2B(Px([B2A_1, B2A_2], training = True))
 
